@@ -1,0 +1,34 @@
+from tqdm import tqdm
+from pathlib import Path
+import shutil
+import os
+import json
+
+import random
+from glob import glob
+
+
+TRAINING = "training/train/"
+VALIDATION = "training/valid/"
+N = 6_000
+
+dst_directory = Path(VALIDATION)
+dst_directory.mkdir(exist_ok=True)
+dst_directory.joinpath("images/").mkdir(exist_ok=True)
+dst_directory.joinpath("labels/").mkdir(exist_ok=True)
+
+src_directory = Path(TRAINING)
+
+possible = list(src_directory.joinpath("labels/").glob("*.txt"))
+chosen = random.choices(possible, k=N)
+
+chosen = list(set(list(map(lambda x: x.stem, chosen))))
+
+image_paths = list(map(lambda x: src_directory.joinpath("images", f"{x}.jpg"), chosen))
+text_paths = list(map(lambda x: src_directory.joinpath("labels", f"{x}.txt"), chosen))
+
+for img in tqdm(image_paths):
+    shutil.move(str(img), str(dst_directory.joinpath("images")))
+
+for txt in tqdm(text_paths):
+    shutil.move(str(txt), str(dst_directory.joinpath("labels")))
